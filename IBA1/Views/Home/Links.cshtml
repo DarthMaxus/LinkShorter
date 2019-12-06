@@ -1,0 +1,88 @@
+﻿@model IBA1.Models.Link
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Сократи свои ссылки</title>
+    <style>
+        .rest{
+            padding:5px;
+            word-break:break-all;
+        }
+        /*td{
+            width:25%;
+            float:left;
+        }*/
+        a{
+            text-decoration:none;
+        }
+        a:hover{
+            color:aquamarine;
+        }
+        table{
+            border:1px solid black;
+        }
+        tr{
+            border-bottom:1px solid black;
+        }
+        td{
+            border-right:1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h3>Сокращенные ссылки</h3>
+        <table>
+            <tr>
+                <td class="rest"><p>Оригинальная ссылка</p></td>
+                <td class="rest"><p>Сокращенная ссылка</p></td>
+                <td class="rest"><p>Владелец ссылки</p></td>
+                <td class="rest"><p>Ссылка активна</p></td>
+                <td class="rest"><p>Группа</p></td>
+                <td class="rest"><p>Удалить</p></td>
+            </tr>
+            @{ foreach (var b in ViewBag.Links)
+                {
+                    if (b.Login == User.Identity.Name)
+                    {
+                    <tr>
+                        <td class="rest"><p class="link">@b.OriginLink</p></td>
+                        <td class="rest"><a href="@b.ShortedLink">@b.ShortedLink</a></td>
+                        <td class="rest"><p>@b.Login</p></td>
+                        @if (b.IsActive)
+            {
+                            <td class="rest"><p><a href="/Home/SwitchActive/@b.LinkId">Активна</a></p></td>
+            }
+                        @if (!b.IsActive)
+            {
+                            <td class="rest"><p><a href="/Home/SwitchActive/@b.LinkId">He aктивна</a></p></td>
+            }
+                        @{bool flag = false;
+            }
+                        <td class="rest">
+                            @{ 
+                                foreach(var group in ViewBag.Groups)
+                                {
+                                    if (b.GroupId == group.GroupId)
+                                    {
+                                        <p>@group.Name</p>
+                                        flag=true;
+                                    }
+                                }
+                                if(!flag)
+                                {
+                                    <a href="AppointGroup?id=@b.LinkId">Назначить группу</a>
+                                }
+                                }
+                        </td>
+                        <td class="rest"><a href="DeleteLink?id=@b.LinkId">Удалить</a></td>
+                    </tr>
+                        }
+                    }
+                }
+        </table>
+    </div>
+</body>

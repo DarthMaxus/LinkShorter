@@ -1,0 +1,29 @@
+﻿
+@{
+    ViewBag.Title = "AppointGroup";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<html>
+<head>
+    <title>Назначение группы</title>
+</head>
+<body>
+    <div>
+        <table>
+            <tr>
+                <td>Имя группы</td>
+            </tr>
+            <tr>
+                @{ 
+                    foreach(var gr in ViewBag.Groups)
+                    {
+                                <td><a href="AppointGroup2?linkid=@ViewBag.LinkId&groupid=@gr.GroupId">@gr.Name</a></td>
+                    }
+                }
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
+

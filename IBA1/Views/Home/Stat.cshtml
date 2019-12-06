@@ -1,0 +1,80 @@
+﻿
+@{
+    ViewBag.Title = "Stat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<html>
+<head>
+    <title>Статистика переходов</title>
+    <style>
+        .rest{
+            padding:2px;
+            word-break:break-all;
+        }
+        /*td{
+            width:25%;
+            float:left;
+        }*/
+        a{
+            text-decoration:none;
+        }
+        a:hover{
+            color:aquamarine;
+        }
+        table{
+            border:1px solid black;
+        }
+        tr{
+            border-bottom:1px solid black;
+        }
+        td{
+            border-right:1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h3>Статистика переходов по ссылкам</h3>
+        <table>
+            <tr>
+                <td class="rest"><p>Оригинальная ссылка</p></td>
+                <td class="rest"><p>Сокращенная ссылка</p></td>
+                <td class="rest"><p>Группа</p></td>
+                <td class="rest"><p>Количество переходов</p></td>
+            </tr>
+            @{ foreach (var b in ViewBag.Links)
+                {
+                    if (b.Login == User.Identity.Name)
+                    {
+                        <tr>
+                            <td class="rest"><p class="link">@b.OriginLink</p></td>
+                            <td class="rest"><a href="@b.ShortedLink">@b.ShortedLink</a></td>
+                            @{bool flag = false;
+                            }
+                            <td class="rest">
+                                @{
+                                    foreach (var group in ViewBag.Groups)
+                                    {
+                                        if (b.GroupId == group.GroupId)
+                                        {
+                                            <p>@group.Name</p>
+                                            flag = true;
+                                        }
+                                    }
+                                    if (!flag)
+                                    {
+                                        <p>Группа не назначена</p>
+                                    }
+                                }
+                            </td>
+                            <td class="rest">@b.Redirections</td>
+                        </tr>
+                    }
+                }
+            }
+        </table>
+    </div>
+</body>
+</html>
+
+

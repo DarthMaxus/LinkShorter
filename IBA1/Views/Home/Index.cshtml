@@ -1,0 +1,48 @@
+﻿@model IBA1.Models.Link
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Сократи свои ссылки</title>
+    <style>
+        label{ 
+            display: inline-block; width: 100px;
+
+        }
+        .item{ 
+            margin: 5px;
+
+        }
+    </style>
+</head>    
+<body>
+    <div>
+        <h3>Сокращение ссылок</h3>
+        @{
+            if (User.Identity.IsAuthenticated)
+            {
+                <form action="Home/AddLink" controller="Home" method="post">
+                            <div class="item">
+                                <div><label>Оригинальная ссылка</label></div>
+                                @Html.TextAreaFor(m => m.OriginLink, 10, 100, null)
+                                <br />
+                                <p>Выберите группу для ссылки, если нужной вам группы нет в списке, перейдите по вкладку "Список групп" и создайте её</p>
+                                <br />
+                                <label>Выберите группу</label>
+                                @Html.DropDownListFor(m => m.GroupId, ViewBag.Groups as SelectList);
+                            </div>
+                    <br/>
+                    <input type="submit" value="Добавить" />
+                </form>
+            }
+            if (!User.Identity.IsAuthenticated)
+            {
+                <h2>Авторизируйтесь для добавления и просмотра ссылок</h2>
+            }
+        }
+    </div>
+</body>
+    

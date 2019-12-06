@@ -1,0 +1,15 @@
+﻿@model IBA1.Models.Group
+@{
+    ViewBag.Title = "Rename";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Изменение названия группы @ViewBag.Group.Name</h2>
+<div>
+    <form action="Rename2" method="post">
+    @Html.HiddenFor(m=>m.GroupId)
+    @Html.TextBoxFor(m=>m.Name)
+    <button type="submit">Сохранить</button>
+    </form>
+</div>
+

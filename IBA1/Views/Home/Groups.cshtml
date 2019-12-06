@@ -1,0 +1,77 @@
+﻿@model IBA1.Models.Group
+@{
+    ViewBag.Title = "Groups";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<head>
+    <title>Группы ссылок</title>
+    <style>
+        table{
+            border:1px solid black;
+        }
+        tr{
+            border-bottom:1px solid black;
+        }
+        button{
+            border-radius:50px;
+            background-color:black;
+            color:white;
+            font-stretch:wider;
+        }
+        button:hover{
+            background-color:darkblue;
+        }
+        input{
+            border-radius:50px;
+        }
+        td{
+            padding:2px;
+            border-right:1px solid black;
+        }
+        table{
+            border:1px solid black;
+        }
+        tr{
+            border-bottom:1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h2>Добавление новой группы</h2>
+    <form action="AddGroup" method="post">
+        <p>Введите имя группы</p>
+        @Html.TextBoxFor(m => m.Name)
+        <button type="submit">Добавить</button>
+    </form>
+    <h2>Список групп</h2>
+    <h3>Нажмите на группу чтобы просмотреть ссылки, находящиеся в ней</h3>
+    <div>
+        <table>
+            <tr>
+                <td><p>Название группы</p></td>
+                <td><p>Переименовать</p></td>
+                <td><p>Удалить</p></td>
+            </tr>
+            @{
+                foreach (var b in ViewBag.Groups)
+                {
+                    if (b.Login == User.Identity.Name)
+                    {
+                        <tr>
+                            <td>
+                                <a href="GroupView?id=@b.GroupId">@b.Name</a>
+                            </td>
+                            <td>
+                                <a href="Rename?id=@b.GroupId">Переименовать</a>
+                            </td>
+                            <td>
+                                <a href="DeleteGroup?id=@b.GroupId">Удалить</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+        </table>
+    </div>
+</body>
+
