@@ -9,129 +9,108 @@ namespace IBA1.Controllers
 {
     public class HomeController : Controller
     {
+        LinkRepository repo;
+        public HomeController()
+        {
+            repo = new LinkRepository();
+        }
+        [HttpGet]
         public ActionResult Links()
         {
-            using (LinkContext db = new LinkContext())
-            {
-                List<Link> links = db.Links.ToList();
-                List<Group> groups = db.Groups.ToList();
-                SelectList items = new SelectList(db.Groups.ToList(), "Name", "Name");
-                ViewBag.Groups = groups;
-                ViewBag.Items = items;
-                ViewBag.Links = links;
-                return View();
-            }
-        }
 
+            List<Link> links = repo.List();
+            List<Group> groups = repo.GroupList();
+            SelectList items = new SelectList(repo.GroupList(), "Name", "Name");
+            ViewBag.Groups = groups;
+            ViewBag.Items = items;
+            ViewBag.Links = links;
+            return View();
+
+        }
+        [HttpGet]
         public ActionResult Error()
         {
             return View();
         }
+        [HttpGet]
         public ActionResult Stat()
         {
-            using(LinkContext db=new LinkContext())
-            {
-                List<Link> links = db.Links.ToList();
-                List<Group> groups = db.Groups.ToList();
-                ViewBag.Links = links;
-                ViewBag.Groups = groups;
-                return View();
-            }  
-        }
 
+            List<Link> links = repo.List();
+            List<Group> groups = repo.GroupList();
+            ViewBag.Links = links;
+            ViewBag.Groups = groups;
+            return View();
+
+        }
+        [HttpGet]
         public ActionResult Rename(int id)
         {
-            using (LinkContext db = new LinkContext())
-            {
-                Group group = db.Groups.Find(id);
-                ViewBag.Group = group;
-                return View(new Group() { GroupId = id });
-            }
+            Group group = repo.GetGroup(id);
+            ViewBag.Group = group;
+            return View(new Group() { GroupId = id });
         }
         [HttpPost]
         public ActionResult Rename2(Group group)
         {
-           
-            using (LinkContext db=new LinkContext())
-            {
-                db.Groups.Find(group.GroupId).Name = group.Name;
-                db.SaveChanges();
-                return RedirectToAction("Groups");
-            }
-        }
-        public ActionResult Groups()
-        {
-            using(LinkContext db=new LinkContext())
-            {
-                List<Group> groups = db.Groups.ToList();
-                ViewBag.Groups = groups;
-            }
-            return View(new Group());
-        }
-
-        public ActionResult DeleteLink(int id)
-        {
-            using (LinkContext db=new LinkContext())
-            {
-                db.Links.Remove(db.Links.Find(id));
-                db.SaveChanges();
-                return RedirectToAction("Links");
-            }
+            repo.RenameGroup(group.GroupId, group.Name);
+            return RedirectToAction("Groups");
         }
         [HttpGet]
-        public RedirectResult Link(string hash)
+        public ActionResult Groups()
         {
-            using (LinkContext db = new LinkContext())
+            List<Group> groups = repo.GroupList();
+            ViewBag.Groups = groups;
+            return View(new Group());
+        }
+        [HttpGet]
+        public ActionResult DeleteLink(int id)
+        {
+            repo.DeleteLink(id);
+            return RedirectToAction("Links");
+        }
+        [HttpGet]
+        public RedirectResult Link(string hash) //old opening
+        {
+            List<Link> links = repo.List();
+            foreach (Link a in links)
             {
-                List<Link> links = db.Links.ToList();
-                foreach (Link a in links)
+                if (a.ShortedLink == "https://localhost:44354/Home/Link?hash=" + hash && a.IsActive)
                 {
-                    if (a.ShortedLink == "https://localhost:44354/Home/Link?hash=" + hash && a.IsActive)
-                    {
-                        db.Links.Find(a.LinkId).Redirections++;
-                        db.SaveChanges();
-                        return Redirect(a.OriginLink);
-                    }
+                    repo.LinkOpens(a.LinkId);
+                    return Redirect(a.OriginLink);
                 }
             }
             return Redirect("/Home/Error");
         }
 
-
-        public ActionResult AddGroup (Group group)
+        [HttpPost]
+        public ActionResult AddGroup(Group group)
         {
             group.Login = User.Identity.Name;
-            using (LinkContext db=new LinkContext())
+            List<Group> groups = repo.GroupList();
+            foreach (Group x in groups)
             {
-                List<Group> groups = db.Groups.ToList();
-                foreach(Group x in groups)
-                {
-                    if (x.Name == group.Name)
-                        return View("Exists");
-                }
-                db.Groups.Add(group);
-                db.SaveChanges();
-                return RedirectToAction("Groups");
+                if (x.Name == group.Name)
+                    return View("Exists");
             }
+            repo.Save(group);
+            return RedirectToAction("Groups");
         }
-
+        [HttpGet]
         public ActionResult AppointGroup(int id)
         {
-            using (LinkContext db=new LinkContext())
-            {
-                List<Group> groups = db.Groups.ToList();
-                ViewBag.Groups = groups;
-                ViewBag.LinkId = id;
-                return View();
-            }
+            List<Group> groups = repo.GroupList();
+            ViewBag.Groups = groups;
+            ViewBag.LinkId = id;
+            return View();
         }
-
+        [HttpGet]
         public ActionResult AppointGroup2(int linkid,int groupid)
         {
             using (LinkContext db=new LinkContext())
             {
-                db.Links.Find(linkid).GroupId = groupid;
-                db.SaveChanges();
+                repo.Appoint(linkid, groupid);
                 return RedirectToAction("Links");
             }
         }
@@ -139,61 +118,55 @@ namespace IBA1.Controllers
         [HttpPost]
         public ActionResult AddLink(Link link)
         {
-            string shorted = "https://localhost:44354/Home/Link?hash=" + link.OriginLink.GetHashCode();
-            link.Redirections = 0;
-            link.ShortedLink = shorted;
-            link.IsActive = true;
-            link.Login = User.Identity.Name;
-            using (LinkContext db = new LinkContext())
+            string shorted = "https://localhost:44354/Shrt?h=" + link.OriginLink.GetHashCode();
+            if(link.OriginLink.StartsWith("https://"))
             {
-                db.Links.Add(link);
-                db.SaveChanges();
+                link.Redirections = 0;
+                link.ShortedLink = shorted;
+                link.IsActive = true;
+                link.Login = User.Identity.Name;
+                repo.Save(link);
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
+            else
+            {
+                return RedirectToAction("LinkNoHttps");
+            }
+            
         }
-
+        [HttpGet]
+        public ActionResult LinkNoHttps()
+        {
+            return View();
+        }
+        [HttpGet]
         public ActionResult DeleteGroup(int id)
         {
-            using (LinkContext db = new LinkContext())
-            {
-                Group removable = db.Groups.Find(id);
-                db.Groups.Remove(removable);
-                Response.Write("<script>alert('Группа "+ removable.Name +"успешно удалена')</script>");
-                db.SaveChanges();
-                return RedirectToAction("Groups");
-            }
+            repo.DeleteGroup(id);
+            return RedirectToAction("Groups");
         }
-
+        [HttpGet]
         public ActionResult GroupView(int id)
         {
-            using (LinkContext db=new LinkContext())
-            {
-                Group a = db.Groups.Find(id);
-                ViewBag.Group = a;
-                List<Link> links = db.Links.ToList();
-                ViewBag.Links = links;
-                return View("GroupView");
-            }
+            Group a = repo.GetGroup(id);
+            ViewBag.Group = a;
+            List<Link> links = repo.List();
+            ViewBag.Links = links;
+            return View("GroupView");
         }
+        [HttpGet]
         public ActionResult Index()
         {
-            using (LinkContext db = new LinkContext())
-            {
-                List<Link> links = db.Links.ToList();
-                ViewBag.Links = links;
-                SelectList items = new SelectList(db.Groups.ToList(), "Name", "Name");
-                ViewBag.Groups = items;
-            }
+            List<Link> links = repo.List();
+            ViewBag.Links = links;
+            SelectList items = new SelectList(repo.GroupList(), "Name", "Name");
+            ViewBag.Groups = items;
             return View(new Link());
         }
         [HttpGet]
         public ActionResult SwitchActive(int id)
         {
-            using (LinkContext db = new LinkContext())
-            {
-                db.Links.Find(id).IsActive = !db.Links.Find(id).IsActive;
-                db.SaveChanges();
-            }
+            repo.ChangeActivity(id);
             return RedirectToAction("Links");
         }
     }

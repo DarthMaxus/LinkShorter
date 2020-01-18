@@ -24,6 +24,7 @@
         @{
             if (User.Identity.IsAuthenticated)
             {
+                <h4>Убедитесь, что ссылка начинается с https://</h4>
                 <form action="Home/AddLink" controller="Home" method="post">
                             <div class="item">
                                 <div><label>Оригинальная ссылка</label></div>

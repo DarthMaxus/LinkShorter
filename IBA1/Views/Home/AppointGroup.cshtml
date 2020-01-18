@@ -14,14 +14,12 @@
             <tr>
                 <td>Имя группы</td>
             </tr>
-            <tr>
                 @{ 
                     foreach(var gr in ViewBag.Groups)
                     {
-                                <td><a href="AppointGroup2?linkid=@ViewBag.LinkId&groupid=@gr.GroupId">@gr.Name</a></td>
+                                <tr><td><a href="AppointGroup2?linkid=@ViewBag.LinkId&groupid=@gr.GroupId">@gr.Name</a></td></tr>
                     }
                 }
-            </tr>
         </table>
     </div>
 </body>

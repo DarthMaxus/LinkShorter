@@ -12,7 +12,6 @@
     <div>
         <table>
             <tr>
-                <td class="rest"><p>Оригинальная ссылка</p></td>
                 <td class="rest"><p>Сокращенная ссылка</p></td>
                 <td class="rest"><p>Владелец ссылки</p></td>
                 <td class="rest"><p>Ссылка активна</p></td>
@@ -22,7 +21,6 @@
                     if (b.GroupId == ViewBag.Group.GroupId)
                     {
                         <tr>
-                            <td class="rest"><p class="link">@b.OriginLink</p></td>
                             <td class="rest"><a href="@b.ShortedLink">@b.ShortedLink</a></td>
                             <td class="rest"><p>@b.Login</p></td>
                             @if (b.IsActive)
